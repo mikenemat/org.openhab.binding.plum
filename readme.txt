@@ -1,5 +1,6 @@
 This is an extremely primitive OpenHAB binding for the Plum LightPad. It has been developed and tested for OpenHAB 1.8
 You will need to use it in combination with my plum-probe.py script to retrieve certain tokens and IDs: https://github.com/mikenemat/plum-probe
+This binding interacts with the LightPads locally, and thus may be broken by firmware updates or configuration changes. 
 
 Binding JAR:
 target/org.openhab.binding.plum-1.8.2-SNAPSHOT.jar
@@ -8,9 +9,9 @@ Binding DEB package:
 In the target dir...no clue if it works
 
 Currently working:
--Plum LightPads can be controlled via OpenHAB as switches
--Plum LightPads receive status / event updates in OpenHAB in real-time based on physical interaction
--Plum LightPads receive status / event updates on OpenHAB startup (polling) starting at 60s and repeating every 60s forward.
+-Plum LightPads can be controlled via OpenHAB as switches (Local HTTP)
+-Plum LightPads receive status / event updates in OpenHAB in real-time based on physical interaction (Local TCP Stream)
+-Plum LightPads receive status / event updates on OpenHAB startup (polling) starting at 60s and repeating every 60s forward. (Local HTTP)
 
 Soon to be working:
 -Plum LightPads can be dimmed / treated as dimmers instead of switches
