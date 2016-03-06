@@ -209,6 +209,8 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
 		logger.debug("activating binding");
 
 		m_isActive = true;
+
+		initialize();
 	}
 
 	/**
