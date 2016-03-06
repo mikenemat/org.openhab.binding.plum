@@ -1,4 +1,4 @@
-This is an extremely primitive OpenHAB binding for the Plum LightPad. It has been developed and tested for OpenHAB 1.8
+This is an OpenHAB binding for the Plum LightPad. It has been developed and tested for OpenHAB 1.8
 You will need to use it in combination with my plum-probe.py script to retrieve certain tokens and IDs: https://github.com/mikenemat/plum-probe
 This binding interacts with the LightPads locally, and thus may be broken by firmware updates or configuration changes. 
 
