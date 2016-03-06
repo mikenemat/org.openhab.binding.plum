@@ -1,5 +1,3 @@
-Full disclaimer: This project is not official
-
 This is an extremely primitive OpenHAB binding for the Plum LightPad. It has been developed and tested for OpenHAB 1.8
 You will need to use it in combination with my plum-probe.py script to retrieve certain tokens and IDs: https://github.com/mikenemat/plum-probe
 
