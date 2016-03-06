@@ -21,7 +21,7 @@ Service-Component: OSGI-INF/activebinding.xml, OSGI-INF/genericbinding
  provider.xml
 Export-Package: org.openhab.binding.plum
 Bundle-Name: openHAB Plum Binding
-Bundle-Version: 1.8.2.201603060050
+Bundle-Version: 1.8.2.201603060538
 Bundle-ClassPath: .,lib/json-20140107.jar
 Private-Package: org.openhab.binding.plum.internal
 Ignore-Package: org.openhab.binding.plum.internal
