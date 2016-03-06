@@ -8,37 +8,29 @@
  */
 package org.openhab.binding.plum;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import java.util.Set;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
+import org.openhab.binding.plum.internal.PlumTCPStreamListener;
+import org.openhab.binding.plum.internal.PlumUtilities;
 import org.openhab.core.binding.AbstractActiveBinding;
 import org.openhab.core.binding.BindingProvider;
+import org.openhab.core.library.types.DecimalType;
+import org.openhab.core.library.types.IncreaseDecreaseType;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.PercentType;
 import org.openhab.core.types.Command;
@@ -54,11 +46,14 @@ import org.slf4j.LoggerFactory;
 
 public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider> implements ManagedService {
 	private static final Logger logger = LoggerFactory.getLogger(PlumActiveBinding.class);
-	private HashMap<String, String> m_config = new HashMap<String, String>();
-	private final long m_refreshInterval = 60000L;
+	private HashMap<String, String> m_config = null;
+	private long m_refreshInterval = 60000L;
 	private boolean m_isActive = false; // state of binding
+	private Map<String, Integer> currentLlidLevels = new HashMap<String, Integer>();
 
-	private static Map<PlumBindingConfig, Boolean> threads = new HashMap<PlumBindingConfig, Boolean>();
+	// Mapping of Plum IP addreses to Threads monitoring them
+	private static Map<String, Thread> threads = new HashMap<String, Thread>();
+	private static Map<String, PlumTCPStreamListener> plumTCPStreams = new HashMap<String, PlumTCPStreamListener>();
 
 	/**
 	 * Constructor
@@ -109,8 +104,9 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
 	 *            The command to be sent
 	 */
 	private void sendCommand(PlumBindingConfig c, Command command) {
+
 		if (command instanceof OnOffType || command instanceof PercentType) {
-			int val = 0;
+			int val = -1;
 			if (command instanceof OnOffType) {
 				if (((OnOffType) command).equals(OnOffType.ON)) {
 					val = 255;
@@ -121,6 +117,35 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
 			} else if (command instanceof PercentType) {
 				val = (int) (((PercentType) command).doubleValue() * 255);
 			}
+			if (val > -1) {
+				Map<String, Object> args = new HashMap<String, Object>();
+				args.put("level", val);
+				args.put("llid", c.getLlid());
+				try {
+					sendHttpCommand(c.getIpAddr(), "setLogicalLoadLevel", args);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		} else if (command instanceof IncreaseDecreaseType) {
+			Integer val = currentLlidLevels.get(c.getLlid());
+			if (val == null) {
+				logger.warn("You must wait for the first poll (60s after startup) before controlling dimmers");
+				return;
+			}
+			if (command.equals(IncreaseDecreaseType.INCREASE)) {
+				if (255 - val <= 13) {
+					val = 255;
+				} else {
+					val += 13;
+				}
+			} else if (command.equals(IncreaseDecreaseType.DECREASE)) {
+				if (val <= 13) {
+					val = 0;
+				} else {
+					val -= 13;
+				}
+			}
 			Map<String, Object> args = new HashMap<String, Object>();
 			args.put("level", val);
 			args.put("llid", c.getLlid());
@@ -129,40 +154,17 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
+
 		}
 	}
 
 	private String sendHttpCommand(String ip, String apiCall, Map<String, Object> args) throws Exception {
-		HttpClient httpclient = new DefaultHttpClient();
 
-		SSLContext ctx = SSLContext.getInstance("TLS");
-		X509TrustManager tm = new X509TrustManager() {
-
-			@Override
-			public void checkClientTrusted(X509Certificate[] xcs, String string) throws CertificateException {
-			}
-
-			@Override
-			public void checkServerTrusted(X509Certificate[] xcs, String string) throws CertificateException {
-			}
-
-			@Override
-			public X509Certificate[] getAcceptedIssuers() {
-				return null;
-			}
-		};
-		ctx.init(null, new TrustManager[] { tm }, null);
-		SSLSocketFactory ssf = new SSLSocketFactory(ctx, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-		ClientConnectionManager ccm = httpclient.getConnectionManager();
-		SchemeRegistry sr = ccm.getSchemeRegistry();
-		sr.register(new Scheme("https", 8443, ssf));
-
-		httpclient = new DefaultHttpClient(ccm, httpclient.getParams());
-
+		HttpClient httpclient = PlumUtilities.getHttpClient();
 		// Prepare a request object
 		HttpPost httppost = new HttpPost("https://" + ip + ":8443/v2/" + apiCall);
 		httppost.setHeader("User-Agent", "Plum/2.3.0 (iPhone; iOS 9.2.1; Scale/2.00)");
-		httppost.setHeader("X-Plum-House-Access-Token", sha256(m_config.get("house_token")));
+		httppost.setHeader("X-Plum-House-Access-Token", PlumUtilities.sha256(m_config.get("house_token")));
 		httppost.setHeader("Content-type", "application/json");
 
 		JSONObject json = new JSONObject();
@@ -179,7 +181,7 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
 		HttpResponse response = httpclient.execute(httppost);
 
 		// Examine the response status
-		logger.info("Plum HTTP: " + response.getStatusLine());
+		logger.info("Plum HTTP Request to IP " + ip + " returned: " + response.getStatusLine());
 
 		// Get hold of the response entity
 		HttpEntity entity = response.getEntity();
@@ -205,6 +207,7 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
 	@Override
 	public void activate() {
 		logger.debug("activating binding");
+
 		m_isActive = true;
 	}
 
@@ -234,33 +237,64 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
 	@Override
 	protected void execute() {
 		PlumGenericBindingProvider p = (PlumGenericBindingProvider) providers.iterator().next();
-		for (final PlumBindingConfig c : p.getPlumBindingConfigs()) {
+		// Only call getLLM once per LLID.
+		Map<String, List<PlumBindingConfig>> configByLLID = new HashMap<String, List<PlumBindingConfig>>();
+		for (PlumBindingConfig c : p.getPlumBindingConfigs()) {
+			List<PlumBindingConfig> configs = configByLLID.get(c.getLlid());
+			if (configs == null) {
+				configs = new ArrayList<PlumBindingConfig>();
+				configByLLID.put(c.getLlid(), configs);
+			}
+			configs.add(c);
+		}
+
+		for (String llid : configByLLID.keySet()) {
 			Map<String, Object> args = new HashMap<String, Object>();
-			args.put("llid", c.getLlid());
+			args.put("llid", llid);
+			String httpReply = null;
+			JSONObject jsonParsed = null;
+			String ipAddr = configByLLID.get(llid).get(0).getIpAddr();
 			try {
-				logger.info("Polling Plum HTTP " + c.getIpAddr());
-				String s = sendHttpCommand(c.getIpAddr(), "getLogicalLoadMetrics", args);
-				logger.info("Got Plum HTTP: " + s);
-				JSONObject j = new JSONObject(s);
-
-				int level = j.getInt("level");
-				int lightpads = j.getJSONArray("lightpad_metrics").length();
-				if (level > 0 && lightpads > 1) {
-					level = (int) ((float) level / lightpads);
-				}
-
-				if (level == 0) {
-					publishState(c.getName(), OnOffType.OFF);
-				} else if (level == 255) {
-					publishState(c.getName(), OnOffType.ON);
-				} else {
-					publishState(c.getName(), new PercentType((int) (100 * ((float) level / 255))));
-				}
+				logger.info("Polling Plum HTTP " + ipAddr);
+				httpReply = sendHttpCommand(ipAddr, "getLogicalLoadMetrics", args);
+				logger.trace("Got Plum HTTP: " + httpReply);
+				jsonParsed = new JSONObject(httpReply);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
+			for (PlumBindingConfig c : configByLLID.get(llid)) {
+
+				if (c.getType().equals("dimmer") || c.getType().equals("switch")) {
+					int level = jsonParsed.getInt("level");
+					int lightpads = jsonParsed.getJSONArray("lightpad_metrics").length();
+					if (level > 0 && lightpads > 1) {
+						// Work around the behaviour where level is the sum
+						// of n
+						// levels where n = # of lightpads in a llid. Divide
+						// levels
+						// by n.
+						level = (int) ((float) level / lightpads);
+					}
+					currentLlidLevels.put(llid, level);
+					if (level == 0) {
+						publishState(c.getName(), OnOffType.OFF);
+					} else if (level == 255) {
+						publishState(c.getName(), OnOffType.ON);
+					} else {
+						publishState(c.getName(), new PercentType((int) (100 * ((float) level / 255))));
+					}
+				} else if (c.getType().equals("powermeter")) {
+					int power = jsonParsed.getInt("power");
+					publishState(c.getName(), new DecimalType(power));
+				}
+
+			}
 
 		}
+	}
+
+	private void publishState(String name, State state) {
+		eventPublisher.postUpdate(name, state);
 	}
 
 	/**
@@ -288,51 +322,6 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
 	}
 
 	/**
-	 * Inherited from the ManagedService interface. This method is called
-	 * whenever the configuration is updated. This could be signaling that e.g.
-	 * the port has changed etc. {@inheritDoc}
-	 */
-	@Override
-	public void updated(Dictionary<String, ?> config) throws ConfigurationException {
-		HashMap<String, String> newConfig = new HashMap<String, String>();
-		if (config == null) {
-			logger.debug("seems like our configuration has been erased, will reset everything!");
-		} else {
-			// turn config into new HashMap
-			for (Enumeration<String> e = config.keys(); e.hasMoreElements();) {
-				String key = e.nextElement();
-				String value = config.get(key).toString();
-				newConfig.put(key, value);
-			}
-		}
-
-		if (newConfig.entrySet().equals(m_config.entrySet())) {
-			logger.debug("config has not changed, done.");
-			return;
-		}
-		m_config = newConfig;
-
-		// configuration has changed
-		if (m_isActive) {
-			if (isProperlyConfigured()) {
-				logger.debug("global binding config has changed, resetting.");
-				shutdown();
-			} else {
-				logger.debug("global binding config has arrived.");
-			}
-		}
-		logger.debug("configuration update complete!");
-		setProperlyConfigured(true);
-		if (m_isActive) {
-		}
-		return;
-	}
-
-	private void publishState(String name, State state) {
-		eventPublisher.postUpdate(name, state);
-	}
-
-	/**
 	 * Initialize the binding: initialize the driver etc
 	 */
 	private void initialize() {
@@ -340,69 +329,27 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
 		logger.debug("initializing...");
 
 		PlumGenericBindingProvider p = (PlumGenericBindingProvider) providers.iterator().next();
-		for (final PlumBindingConfig c : p.getPlumBindingConfigs()) {
-			if (threads.get(c) == null || threads.get(c) == false) {
-				Runnable r = new Runnable() {
-					private void publishState(State state) {
-						PlumActiveBinding.this.publishState(c.getName(), state);
-					}
+		// Create threads by IP
+		Map<String, Set<PlumBindingConfig>> configByIP = new HashMap<String, Set<PlumBindingConfig>>();
+		for (PlumBindingConfig c : p.getPlumBindingConfigs()) {
+			Set<PlumBindingConfig> configs = configByIP.get(c.getIpAddr());
+			if (configs == null) {
+				configs = new HashSet<PlumBindingConfig>();
+				configByIP.put(c.getIpAddr(), configs);
+			}
+			configs.add(c);
+		}
 
-					@Override
-					public void run() {
-						logger.info("Starting monitor thread for Plum IP: " + c.getIpAddr());
-						Socket socket = null;
-						BufferedReader input = null;
-						while (true) {
-							try {
-								socket = new Socket(c.getIpAddr(), 2708);
-								input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-								String s = null;
-								while ((s = input.readLine()) != null) {
-									logger.info("Plum IP " + c.getIpAddr() + " Message: " + s);
-									JSONObject j = new JSONObject(s);
-									String type = j.getString("type");
-									if (type.equals("dimmerchange")) {
-										int level = j.getInt("level");
-
-										if (level == 0) {
-											publishState(OnOffType.OFF);
-										} else if (level == 255) {
-											publishState(OnOffType.ON);
-										} else {
-											publishState(new PercentType((int) (100 * ((float) level / 255))));
-										}
-									}
-								}
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-
-							if (input != null) {
-								try {
-									input.close();
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-							if (socket != null) {
-								try {
-									socket.close();
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-							try {
-								Thread.sleep(1000);
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						}
-					}
-				};
-				new Thread(r).start();
-				threads.put(c, true);
+		for (String ip : configByIP.keySet()) {
+			Set<PlumBindingConfig> configs = configByIP.get(ip);
+			if (threads.get(ip) == null) {
+				PlumTCPStreamListener stream = new PlumTCPStreamListener(eventPublisher, configs, currentLlidLevels);
+				Thread t = new Thread(stream);
+				t.start();
+				threads.put(ip, t);
+				plumTCPStreams.put(ip, stream);
+			} else {
+				plumTCPStreams.get(ip).getConfigs().addAll(configs);
 			}
 		}
 	}
@@ -412,26 +359,40 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
 	 */
 	private void shutdown() {
 		logger.debug("shutting down binding");
+		for (Thread t : threads.values()) {
+			t.stop();
+			t.destroy();
+		}
 
 	}
 
-	public static String sha256(String base) {
-		try {
-			MessageDigest digest = MessageDigest.getInstance("SHA-256");
-			byte[] hash = digest.digest(base.getBytes(StandardCharsets.UTF_8));
-			StringBuffer hexString = new StringBuffer();
+	@Override
+	public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
+		logger.warn(
+				"The Plum Binding does not support runtime updates. Restart OpenHAB for item changes to take effect");
+		HashMap<String, String> newConfig = new HashMap<String, String>();
+		if (m_config == null) {
+			logger.debug("seems like our configuration has been erased, will reset everything!");
 
-			for (int i = 0; i < hash.length; i++) {
-				String hex = Integer.toHexString(0xff & hash[i]);
-				if (hex.length() == 1) {
-					hexString.append('0');
-				}
-				hexString.append(hex);
+			// turn config into new HashMap
+			for (Enumeration<String> e = properties.keys(); e.hasMoreElements();) {
+				String key = e.nextElement();
+				String value = properties.get(key).toString();
+				newConfig.put(key, value);
 			}
 
-			return hexString.toString();
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
+			m_config = newConfig;
+
+			if (m_config.containsKey("refresh")) {
+				try {
+					m_refreshInterval = Long.parseLong(m_config.get("refresh"));
+					setProperlyConfigured(true);
+				} catch (NumberFormatException e) {
+					logger.error(
+							"Are you sure you provided a numerical value for the openhab.cfg option plum:refresh?");
+				}
+			}
 		}
+
 	}
 }
