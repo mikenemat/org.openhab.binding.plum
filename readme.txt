@@ -1,5 +1,11 @@
 This is an extremely primitive OpenHAB binding.
 
+Binding JAR:
+target/org.openhab.binding.plum-1.8.2-SNAPSHOT.jar
+
+Binding DEB package:
+In the target dir...no clue if it works
+
 Currently working:
 -Plum LightPads can be controlled via OpenHAB as switches
 -Plum LightPads receive status / event updates in OpenHAB in real-time based on physical interaction
