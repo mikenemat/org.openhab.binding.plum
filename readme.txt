@@ -1,4 +1,4 @@
-This is an extremely primitive OpenHAB binding.
+This is an extremely primitive OpenHAB binding. You will need to use it in combination with my plum-probe.py script to retrieve certain tokens and IDs: https://github.com/mikenemat/plum-probe
 
 Binding JAR:
 target/org.openhab.binding.plum-1.8.2-SNAPSHOT.jar
