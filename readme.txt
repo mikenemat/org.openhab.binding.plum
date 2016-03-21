@@ -8,6 +8,9 @@ target/org.openhab.binding.plum-1.8.2-SNAPSHOT.jar
 Binding DEB package:
 In the target dir...no clue if it works
 
+Changelog:
+Mar 21 6PM - Fixed an issue with dimming
+
 Currently working:
 -Plum LightPads can be controlled via OpenHAB as switches (Local HTTP)
 -Plum LightPads can be controlled via OpenHAB as dimmers (Local HTTP)
