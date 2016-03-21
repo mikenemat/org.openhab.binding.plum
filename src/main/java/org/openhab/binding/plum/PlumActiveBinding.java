@@ -115,7 +115,7 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
 				}
 
 			} else if (command instanceof PercentType) {
-				val = (int) (((PercentType) command).doubleValue() * 255);
+				val = (int) ((((PercentType) command).doubleValue() / 100) * 255);
 			}
 			if (val > -1) {
 				Map<String, Object> args = new HashMap<String, Object>();
