@@ -39,3 +39,6 @@ Dimmer dimmerName "dimmerLabel [%d]" {plum="IP_ADDRESS_FROM_PLUM_PROBE_PYTHON_SC
 Switch switchName "switchLabel" {plum="IP_ADDRESS_FROM_PLUM_PROBE_PYTHON_SCRIPT:LOGICAL_LOAD_ID_FROM_PLUM_PROBE_PYTHON_SCRIPT#switch"}
 Number powerMeterName "powerMeterLabel [%d W]" {plum="IP_ADDRESS_FROM_PLUM_PROBE_PYTHON_SCRIPT:LOGICAL_LOAD_ID_FROM_PLUM_PROBE_PYTHON_SCRIPT#powermeter"}
 
+Real item example:
+Dimmer foyerLights "Foyer Pot Lights" {plum="192.168.1.81:fbb0bbxx-0747-4c14-xxxx-e4db2a1xxde4#dimmer"}
+
