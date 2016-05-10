@@ -42,3 +42,8 @@ Number powerMeterName "powerMeterLabel [%d W]" {plum="IP_ADDRESS_FROM_PLUM_PROBE
 Real item example:
 Switch foyerLights "Foyer Pot Lights" {plum="192.168.1.81:fbb0bbxx-0747-4c14-xxxx-e4db2a1xxde4#switch"}
 
+-plum.sitemap 
+
+Switch item=switchName
+Slider item=dimmerName
+Text item=powerMeterName
