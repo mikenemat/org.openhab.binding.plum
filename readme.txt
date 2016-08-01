@@ -47,4 +47,5 @@ Switch foyerLights "Foyer Pot Lights" {plum="192.168.1.81:fbb0bbxx-0747-4c14-xxx
 Switch item=switchName
 Slider item=dimmerName
 Text item=powerMeterName
-Contact item=motionName
+Switch item=motionName
+***Note*** You may also use Switch types for dimmers instead of Slider. You may also use Text type for motion sensors instead of Switch.
