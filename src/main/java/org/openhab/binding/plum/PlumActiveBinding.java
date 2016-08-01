@@ -25,6 +25,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
+import org.openhab.binding.plum.internal.PlumMotionWatchdog;
 import org.openhab.binding.plum.internal.PlumTCPStreamListener;
 import org.openhab.binding.plum.internal.PlumUtilities;
 import org.openhab.core.binding.AbstractActiveBinding;
@@ -54,6 +55,7 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
 	// Mapping of Plum IP addreses to Threads monitoring them
 	private static Map<String, Thread> threads = new HashMap<String, Thread>();
 	private static Map<String, PlumTCPStreamListener> plumTCPStreams = new HashMap<String, PlumTCPStreamListener>();
+	private Thread watchdogThread = null;
 
 	/**
 	 * Constructor
@@ -342,10 +344,14 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
 			configs.add(c);
 		}
 
+		PlumMotionWatchdog w = new PlumMotionWatchdog(eventPublisher);
+		watchdogThread = new Thread(w);
+		watchdogThread.start();
+
 		for (String ip : configByIP.keySet()) {
 			Set<PlumBindingConfig> configs = configByIP.get(ip);
 			if (threads.get(ip) == null) {
-				PlumTCPStreamListener stream = new PlumTCPStreamListener(eventPublisher, configs, currentLlidLevels);
+				PlumTCPStreamListener stream = new PlumTCPStreamListener(eventPublisher, configs, currentLlidLevels, w);
 				Thread t = new Thread(stream);
 				t.start();
 				threads.put(ip, t);
@@ -365,6 +371,8 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
 			t.stop();
 			t.destroy();
 		}
+		watchdogThread.stop();
+		watchdogThread.destroy();
 
 	}
 

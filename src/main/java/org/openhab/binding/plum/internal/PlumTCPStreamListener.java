@@ -11,6 +11,7 @@ import org.openhab.binding.plum.PlumBindingConfig;
 import org.openhab.core.events.EventPublisher;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.library.types.OpenClosedType;
 import org.openhab.core.library.types.PercentType;
 import org.openhab.core.types.State;
 import org.slf4j.Logger;
@@ -21,12 +22,14 @@ public class PlumTCPStreamListener implements Runnable {
 	private EventPublisher eventPublisher = null;
 	private Set<PlumBindingConfig> configs = null;
 	private Map<String, Integer> currentLlidLevels = null;
+	private PlumMotionWatchdog watchdog = null;
 
 	public PlumTCPStreamListener(EventPublisher eventPublisher, Set<PlumBindingConfig> configs,
-			Map<String, Integer> currentLlidLevels) {
+			Map<String, Integer> currentLlidLevels, PlumMotionWatchdog watchdog) {
 		this.eventPublisher = eventPublisher;
 		this.configs = configs;
 		this.currentLlidLevels = currentLlidLevels;
+		this.watchdog = watchdog;
 	}
 
 	private void publishState(PlumBindingConfig c, State state) {
@@ -72,6 +75,9 @@ public class PlumTCPStreamListener implements Runnable {
 						} else if (type.equals("power") && config.getType().equals("powermeter")) {
 							int power = j.getInt("watts");
 							publishState(config, new DecimalType(power));
+						} else if (type.equals("pirSignal") && config.getType().equals("motion")) {
+							publishState(config, OpenClosedType.OPEN);
+							watchdog.updateWatchdog(config);
 						}
 					}
 				}

@@ -10,6 +10,7 @@ In the target dir...no clue if it works
 
 Changelog:
 Mar 21 6PM - Fixed an issue with dimming
+Aug 1 2PM - Added support for motion sensor items (Contact) for #motion items. 
 
 Currently working:
 -Plum LightPads can be controlled via OpenHAB as switches (Local HTTP)
@@ -38,6 +39,7 @@ plum:house_token=PLUM_HOUSE_TOKEN_FROM_PLUM_PROBE_PYTHON_SCRIPT_HERE
 Dimmer dimmerName "dimmerLabel [%d]" {plum="IP_ADDRESS_FROM_PLUM_PROBE_PYTHON_SCRIPT:LOGICAL_LOAD_ID_FROM_PLUM_PROBE_PYTHON_SCRIPT#dimmer"}
 Switch switchName "switchLabel" {plum="IP_ADDRESS_FROM_PLUM_PROBE_PYTHON_SCRIPT:LOGICAL_LOAD_ID_FROM_PLUM_PROBE_PYTHON_SCRIPT#switch"}
 Number powerMeterName "powerMeterLabel [%d W]" {plum="IP_ADDRESS_FROM_PLUM_PROBE_PYTHON_SCRIPT:LOGICAL_LOAD_ID_FROM_PLUM_PROBE_PYTHON_SCRIPT#powermeter"}
+Contact motionName "motionLabel" {plum="IP_ADDRESS_FROM_PLUM_PROBE_PYTHON_SCRIPT:LOGICAL_LOAD_ID_FROM_PLUM_PROBE_PYTHON_SCRIPT#motion"}
 
 Real item example:
 Switch foyerLights "Foyer Pot Lights" {plum="192.168.1.81:fbb0bbxx-0747-4c14-xxxx-e4db2a1xxde4#switch"}
@@ -47,3 +49,4 @@ Switch foyerLights "Foyer Pot Lights" {plum="192.168.1.81:fbb0bbxx-0747-4c14-xxx
 Switch item=switchName
 Slider item=dimmerName
 Text item=powerMeterName
+Contact item=motionName
