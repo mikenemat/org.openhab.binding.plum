@@ -18,9 +18,7 @@ Currently working:
 -Plum LightPads receive status / event updates in OpenHAB in real-time based on physical interaction (Local TCP Stream)
 -Plum LightPads receive status / event updates on OpenHAB startup (polling) starting at 60s and repeating every 60s forward. (Local HTTP)
 -Plum LightPads report the power consumption of the load (in watts). Use the same llid and IP address but with the Number item type and #powermeter feature as per example below
-
-Future:
-- Motion sensor events/updates from Plum PIR sensor
+-Plum Lightpads report PIR/Motion sensor events. These events will set an OpenHab CONTACT item type to OPEN for 5 seconds, and automatically close it 5 seconds later. Make sure to use the Item Type Contact and the plum config type #motion as per examples below.
 
 General issues
 -Non-real-time (polled) values and statuses are updated for the first time at the first refresh (60s default) instead of plugin startup.
