@@ -52,11 +52,15 @@ Text item=powerMeterName
 Switch item=motionName
 ***Note*** You may also use Switch types for dimmers instead of Slider. You may also use Text type for motion sensors instead of Switch
 
--plum.rules example:
+-plum.rules example ***NOTE*** If you configured your lights as a Switch instead of a Dimmer, you should use == ON/OFF instead of >0/==0:
 
 rule "officeLightOn"
-    when   
-            Item officeMotion changed from CLOSED to OPEN
-    then   
-            sendCommand(officeLights, ON)
-    end
+when
+        Item officeMotion changed from CLOSED to OPEN
+then
+        if (officeLights.state > 0) {
+                sendCommand(officeLights, OFF)
+        } else if (officeLights.state == 0){
+                sendCommand(officeLights, ON)
+        }
+end
