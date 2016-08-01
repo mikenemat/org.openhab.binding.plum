@@ -1,12 +1,13 @@
 This is an OpenHAB binding for the Plum LightPad. It has been developed and tested for OpenHAB 1.8
 You will need to use it in combination with my plum-probe.py script to retrieve certain tokens and IDs: https://github.com/mikenemat/plum-probe
-This binding interacts with the LightPads locally, and thus may be broken by firmware updates or configuration changes. 
+This binding interacts with the LightPads locally over HTTP, and thus may be broken by firmware updates, IP address reallocation, or configuration changes. It is strongly recommended that you make static DHCP allocations for all of your lightpads to avoid IP address changes.
 
 Binding JAR:
 target/org.openhab.binding.plum-1.8.2-SNAPSHOT.jar
+^ On my distro, this file should be placed in /usr/share/openhab/addons. This might not be the same for you
 
 Binding DEB package:
-In the target dir...no clue if it works
+In the target dir...no clue if it works. It has not been tested.
 
 Changelog:
 Mar 21 6PM - Fixed an issue with dimming
@@ -14,17 +15,19 @@ Aug 1 2PM - Added support for motion sensor items (Contact) for #motion items.
 Aug 1 3PM - Added extra logging around motion sensors and added a 5 second cool-down period for motion events.
 Aug 1 3:10PM - Fixed a bug where motion sensors wouldn't work on 1st try.
 
+KNOWN ISSUES:
+- Phantom motion events. There is a numeric value attached to pirSignal events which I was ignoring. This proved to be a bad idea. These values likely indicate some sort of quality/threshold. I will log and audit these values to determine what numeric value indicates a "true" pirSignal event. I had assumed that pirSignal events are fired only when the motion meets the same threshold used to light up the LightPad. I'm not so sure about that any more. I think a superset of motion events are broadcast and not all of them meet the threshold to be considered valid.
+
 Currently working:
--Plum LightPads can be controlled via OpenHAB as switches (Local HTTP)
--Plum LightPads can be controlled via OpenHAB as dimmers (Local HTTP)
--Plum LightPads receive status / event updates in OpenHAB in real-time based on physical interaction (Local TCP Stream)
--Plum LightPads receive status / event updates on OpenHAB startup (polling) starting at 60s and repeating every 60s forward. (Local HTTP)
+-Plum LightPads can be controlled via OpenHAB as switches 
+-Plum LightPads can be controlled via OpenHAB as dimmers
+-Plum LightPads receive status / event updates in OpenHAB in real-time based on physical interaction from the streaming API service running on TCP port 2708 on the LightPads.
+-Plum LightPads receive status / event updates on OpenHAB startup starting at 60s and repeating every 60s forward
 -Plum LightPads report the power consumption of the load (in watts). Use the same llid and IP address but with the Number item type and #powermeter feature as per example below
--Plum Lightpads report PIR/Motion sensor events. These events will set an OpenHab CONTACT item type to OPEN for 5 seconds, and automatically close it 5 seconds later. Make sure to use the Item Type Contact and the plum config type #motion as per examples below.
+-Plum Lightpads report PIR/Motion sensor events. These events will set an OpenHab CONTACT item type to OPEN for 5 seconds, and automatically close it 5 seconds later. Make sure to use the Contact item type and the #motion configuration feature as per examples below.
 
 General issues
--Non-real-time (polled) values and statuses are updated for the first time at the first refresh (60s default) instead of plugin startup.
-	- A side effect of this is that Dimmers when configured as Sliders in the site map cannot be controlled until the first refresh.
+-Dimmers when configured as Sliders in the site map cannot be controlled until the first refresh (60s after OpenHAB start)
 -No test cases and minimal error handling. Make sure your configuration is perfect and keep an eye on the logs for any network issues.
 
 Configuration
