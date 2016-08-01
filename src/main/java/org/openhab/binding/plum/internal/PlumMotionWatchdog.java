@@ -62,4 +62,8 @@ public class PlumMotionWatchdog implements Runnable {
 		}
 	}
 
+	public boolean isNotRunning(PlumBindingConfig config) {
+		return !watchdog.containsKey(config);
+	}
+
 }

@@ -76,8 +76,14 @@ public class PlumTCPStreamListener implements Runnable {
 							int power = j.getInt("watts");
 							publishState(config, new DecimalType(power));
 						} else if (type.equals("pirSignal") && config.getType().equals("motion")) {
-							publishState(config, OpenClosedType.OPEN);
-							watchdog.updateWatchdog(config);
+							if (watchdog.isNotRunning(config)) {
+								logger.info("Plum motion sensor triggered: " + config.getName());
+								publishState(config, OpenClosedType.OPEN);
+								watchdog.updateWatchdog(config);
+							} else {
+								logger.info(
+										"Plum motion sensor IGNORED due to existing motion delay: " + config.getName());
+							}
 						}
 					}
 				}
