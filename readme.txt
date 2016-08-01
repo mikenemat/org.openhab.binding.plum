@@ -49,4 +49,13 @@ Switch item=switchName
 Slider item=dimmerName
 Text item=powerMeterName
 Switch item=motionName
-***Note*** You may also use Switch types for dimmers instead of Slider. You may also use Text type for motion sensors instead of Switch.
+***Note*** You may also use Switch types for dimmers instead of Slider. You may also use Text type for motion sensors instead of Switch
+
+-plum.rules example:
+
+rule "officeLightOn"
+    when   
+            Item officeMotion changed from CLOSED to OPEN
+    then   
+            sendCommand(officeLights, ON)
+    end
