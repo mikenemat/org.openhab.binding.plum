@@ -52,7 +52,7 @@ Text item=powerMeterName
 Switch item=motionName
 ***Note*** You may also use Switch types for dimmers instead of Slider. You may also use Text type for motion sensors instead of Switch
 
--plum.rules example. NOTE if you are using an if statement based on light.state, use == ON/OFF for switches and >0 or == 0 for dimmers:
+-plum.rules example:
 
 rule "officeLightOn"
     when   
