@@ -33,6 +33,7 @@ import org.openhab.core.binding.BindingProvider;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.IncreaseDecreaseType;
 import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.library.types.OpenClosedType;
 import org.openhab.core.library.types.PercentType;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.State;
@@ -336,6 +337,10 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
 		// Create threads by IP
 		Map<String, Set<PlumBindingConfig>> configByIP = new HashMap<String, Set<PlumBindingConfig>>();
 		for (PlumBindingConfig c : p.getPlumBindingConfigs()) {
+			if (c.getType().equals("motion")) {
+				// Init all motion sensors to CLOSED
+				publishState(c.getName(), OpenClosedType.CLOSED);
+			}
 			Set<PlumBindingConfig> configs = configByIP.get(c.getIpAddr());
 			if (configs == null) {
 				configs = new HashSet<PlumBindingConfig>();

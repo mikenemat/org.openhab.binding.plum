@@ -12,6 +12,7 @@ Changelog:
 Mar 21 6PM - Fixed an issue with dimming
 Aug 1 2PM - Added support for motion sensor items (Contact) for #motion items. 
 Aug 1 3PM - Added extra logging around motion sensors and added a 5 second cool-down period for motion events.
+Aug 1 3:10PM - Fixed a bug where motion sensors wouldn't work on 1st try.
 
 Currently working:
 -Plum LightPads can be controlled via OpenHAB as switches (Local HTTP)
