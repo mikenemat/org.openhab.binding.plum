@@ -16,7 +16,7 @@ Aug 1 3PM - Added extra logging around motion sensors and added a 5 second cool-
 Aug 1 3:10PM - Fixed a bug where motion sensors wouldn't work on 1st try.
 
 KNOWN ISSUES:
-- Phantom motion events. There is a numeric value attached to pirSignal events which I was ignoring. This proved to be a bad idea. These values likely indicate some sort of quality/threshold. I will log and audit these values to determine what numeric value indicates a "true" pirSignal event. I had assumed that pirSignal events are fired only when the motion meets the same threshold used to light up the LightPad. I'm not so sure about that any more. I think a superset of motion events are broadcast and not all of them meet the threshold to be considered valid.
+- Phantom motion events. There is a numeric value attached to pirSignal events which I was ignoring. This proved to be a bad idea. These values likely indicate some sort of quality/threshold. I will log and audit these values to determine what numeric value indicates a "true" pirSignal event. I had assumed that pirSignal events are fired only when the motion meets the same threshold used to light up the LightPad. I'm not so sure about that any more. I think a superset of motion events are broadcast and not all of them meet the threshold to be considered valid. Please check back in a few days - I'm confident I can fix this issue in the near future.
 
 Currently working:
 -Plum LightPads can be controlled via OpenHAB as switches 
