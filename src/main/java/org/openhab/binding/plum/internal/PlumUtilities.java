@@ -8,19 +8,21 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 public class PlumUtilities {
 
-    private static HttpClient httpClient = null;
+    private static HttpClient client = null;
 
     public static HttpClient getHttpClient() {
-        if (httpClient == null) {
-            httpClient = new HttpClient(new SslContextFactory(true));
+        if (client == null) {
+            client = new HttpClient(new SslContextFactory(true));
+            client.setConnectTimeout(5000);
+            client.setIdleTimeout(5000);
             try {
-                httpClient.start();
+                client.start();
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);
             }
         }
-        return httpClient;
+        return client;
     }
 
     public static String sha256(String base) {

@@ -16,7 +16,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
@@ -176,6 +178,7 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
 
         httppost.content(new StringContentProvider(json.toString()), "UTF-8");
 
+        httppost.timeout(5, TimeUnit.SECONDS);
         ContentResponse response = httppost.send();
         int status = response.getStatus();
 
@@ -226,7 +229,12 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
      */
     @Override
     protected void execute() {
-        PlumGenericBindingProvider p = (PlumGenericBindingProvider) providers.iterator().next();
+        PlumGenericBindingProvider p = null;
+        try {
+            p = (PlumGenericBindingProvider) providers.iterator().next();
+        } catch (NoSuchElementException e) {
+            return;
+        }
         // Only call getLLM once per LLID.
         Map<String, List<PlumBindingConfig>> configByLLID = new HashMap<String, List<PlumBindingConfig>>();
         for (PlumBindingConfig c : p.getPlumBindingConfigs()) {
@@ -366,12 +374,9 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
     private void shutdown() {
         logger.debug("shutting down binding");
         for (Thread t : threads.values()) {
-            t.stop();
-            t.destroy();
+            t.interrupt();
         }
-        watchdogThread.stop();
-        watchdogThread.destroy();
-
+        watchdogThread.interrupt();
     }
 
     @Override

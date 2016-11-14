@@ -10,18 +10,18 @@ Bundle-DocURL: http://www.openhab.org
 Import-Package: org.apache.commons.lang,org.eclipse.jetty.client;versi
  on="9.2.12",org.eclipse.jetty.client.api;version="9.2.12",org.eclipse
  .jetty.client.http;version="9.2.12",org.eclipse.jetty.client.util;ver
- sion="9.2.12",org.eclipse.jetty.util.component;version="9.2.12",org.e
- clipse.jetty.util.ssl;version="9.2.12",org.openhab.core.autoupdate,or
- g.openhab.core.binding,org.openhab.core.events,org.openhab.core.items
- ,org.openhab.core.library.items,org.openhab.core.library.types,org.op
- enhab.core.types,org.openhab.model.item.binding,org.osgi.framework,or
- g.osgi.service.cm,org.osgi.service.component,org.osgi.service.event,o
- rg.slf4j
+ sion="9.2.12",org.eclipse.jetty.util;version="9.2.12",org.eclipse.jet
+ ty.util.component;version="9.2.12",org.eclipse.jetty.util.ssl;version
+ ="9.2.12",org.openhab.core.binding,org.openhab.core.events,org.openha
+ b.core.items,org.openhab.core.library.items,org.openhab.core.library.
+ types,org.openhab.core.types,org.openhab.model.item.binding,org.osgi.
+ framework,org.osgi.service.cm,org.osgi.service.component,org.osgi.ser
+ vice.event,org.slf4j
 Service-Component: OSGI-INF/activebinding.xml, OSGI-INF/genericbinding
  provider.xml
 Export-Package: org.openhab.binding.plum
 Bundle-Name: openHAB Plum Binding
-Bundle-Version: 1.9.0.201611140235
+Bundle-Version: 1.9.0.201611140009
 Bundle-ClassPath: .,lib/json-20140107.jar
 Private-Package: org.openhab.binding.plum.internal
 Ignore-Package: org.openhab.binding.plum.internal
