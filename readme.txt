@@ -3,8 +3,8 @@ You will need to use it in combination with my plum-probe.py script to retrieve 
 This binding interacts with the LightPads locally over HTTP, and thus may be broken by firmware updates, IP address reallocation, or configuration changes. It is strongly recommended that you make static DHCP allocations for all of your lightpads to avoid IP address changes.
 
 Binding JAR:
-target/org.openhab.binding.plum-1.9.0-SNAPSHOT.jar
-^ On my distro, this file should be placed in /usr/share/openhab/addons. This might not be the same for you, especially with OpenHAB2
+FOR OPENHAB 1.8.X: target/org.openhab.binding.plum-1.8.2-OPENHAB_1_8_X.jar
+FOR OPENHAB 2.0: target/org.openhab.binding.plum-1.9.0-OPENHAB_2_0.jar
 
 Binding DEB package:
 Currently broken, use the JAR file
@@ -16,6 +16,8 @@ Aug 1/2016 3PM - Added extra logging around motion sensors and added a 5 second 
 Aug 1/2016 3:10PM - Fixed a bug where motion sensors wouldn't work on 1st try.
 Nov 13/2016 9:23PM - OpenHAB 2.0 Compatibility: Converted from Apache Commons HTTP to Jetty HttpClient
 Nov 14/2016 12:10AM - Added various HTTP timeout parameters to improve reliability
+Nov 14/2016 1:11AM - Create separate builds for OpenHAB 1.8X and 2.0 to address outstanding issues.
+
 
 KNOWN ISSUES:
 - Phantom motion events. There is a numeric value attached to pirSignal events which I was ignoring. This proved to be a bad idea. These values likely indicate some sort of quality/threshold. I will log and audit these values to determine what numeric value indicates a "true" pirSignal event. I had assumed that pirSignal events are fired only when the motion meets the same threshold used to light up the LightPad. I'm not so sure about that any more. I think a superset of motion events are broadcast and not all of them meet the threshold to be considered valid. Please check back in a few days - I'm confident I can fix this issue in the near future.

@@ -91,9 +91,9 @@ public class PlumGenericBindingProvider extends AbstractGenericBindingProvider i
 
     /**
      * Parses binding configuration string. The config string has the format:
-     * 
+     *
      * xx.xxx.xxx:productKey#feature,param1=yyy,param2=zzz
-     * 
+     *
      * @param bindingConfig
      *            string with binding parameters
      * @return String array with split arguments:

@@ -4,7 +4,7 @@ Bundle-Description: This is the Plum binding of the open Home Automati
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Bundle-SymbolicName: org.openhab.binding.plum
 Bundle-ManifestVersion: 2
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: openHAB.org
 Bundle-DocURL: http://www.openhab.org
 Import-Package: org.apache.commons.lang,org.eclipse.jetty.client;versi
@@ -12,16 +12,16 @@ Import-Package: org.apache.commons.lang,org.eclipse.jetty.client;versi
  .jetty.client.http;version="9.2.12",org.eclipse.jetty.client.util;ver
  sion="9.2.12",org.eclipse.jetty.util;version="9.2.12",org.eclipse.jet
  ty.util.component;version="9.2.12",org.eclipse.jetty.util.ssl;version
- ="9.2.12",org.openhab.core.binding,org.openhab.core.events,org.openha
- b.core.items,org.openhab.core.library.items,org.openhab.core.library.
- types,org.openhab.core.types,org.openhab.model.item.binding,org.osgi.
- framework,org.osgi.service.cm,org.osgi.service.component,org.osgi.ser
- vice.event,org.slf4j
+ ="9.2.12",org.openhab.core.autoupdate,org.openhab.core.binding,org.op
+ enhab.core.events,org.openhab.core.items,org.openhab.core.library.ite
+ ms,org.openhab.core.library.types,org.openhab.core.types,org.openhab.
+ model.item.binding,org.osgi.framework,org.osgi.service.cm,org.osgi.se
+ rvice.component,org.osgi.service.event,org.slf4j
 Service-Component: OSGI-INF/activebinding.xml, OSGI-INF/genericbinding
  provider.xml
 Export-Package: org.openhab.binding.plum
 Bundle-Name: openHAB Plum Binding
-Bundle-Version: 1.9.0.201611140009
+Bundle-Version: 1.9.0.201611140048
 Bundle-ClassPath: .,lib/json-20140107.jar
 Private-Package: org.openhab.binding.plum.internal
 Ignore-Package: org.openhab.binding.plum.internal
