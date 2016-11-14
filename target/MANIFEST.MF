@@ -3,25 +3,25 @@ Bundle-Description: This is the Plum binding of the open Home Automati
  on Bus (openHAB)
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Bundle-SymbolicName: org.openhab.binding.plum
-Require-Bundle: org.apache.httpcomponents.httpcore,org.apache.httpcomp
- onents.httpclient,org.apache.commons.httpclient
 Bundle-ManifestVersion: 2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: openHAB.org
 Bundle-DocURL: http://www.openhab.org
-Import-Package: org.apache.commons.lang,org.apache.http,org.apache.htt
- p.auth,org.apache.http.client,org.apache.http.client.methods,org.apac
- he.http.impl.client,org.apache.http.params;version="4.1.4",org.apache
- .http.util,org.openhab.core.autoupdate,org.openhab.core.binding,org.o
- penhab.core.events,org.openhab.core.items,org.openhab.core.library.it
- ems,org.openhab.core.library.types,org.openhab.core.types,org.openhab
- .model.item.binding,org.osgi.framework,org.osgi.service.cm,org.osgi.s
- ervice.component,org.osgi.service.event,org.slf4j
+Import-Package: org.apache.commons.lang,org.eclipse.jetty.client;versi
+ on="9.2.12",org.eclipse.jetty.client.api;version="9.2.12",org.eclipse
+ .jetty.client.http;version="9.2.12",org.eclipse.jetty.client.util;ver
+ sion="9.2.12",org.eclipse.jetty.util.component;version="9.2.12",org.e
+ clipse.jetty.util.ssl;version="9.2.12",org.openhab.core.autoupdate,or
+ g.openhab.core.binding,org.openhab.core.events,org.openhab.core.items
+ ,org.openhab.core.library.items,org.openhab.core.library.types,org.op
+ enhab.core.types,org.openhab.model.item.binding,org.osgi.framework,or
+ g.osgi.service.cm,org.osgi.service.component,org.osgi.service.event,o
+ rg.slf4j
 Service-Component: OSGI-INF/activebinding.xml, OSGI-INF/genericbinding
  provider.xml
 Export-Package: org.openhab.binding.plum
 Bundle-Name: openHAB Plum Binding
-Bundle-Version: 1.8.2.201608011905
+Bundle-Version: 1.9.0.201611140235
 Bundle-ClassPath: .,lib/json-20140107.jar
 Private-Package: org.openhab.binding.plum.internal
 Ignore-Package: org.openhab.binding.plum.internal
