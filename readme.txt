@@ -19,8 +19,9 @@ Nov 14/2016 12:10AM - Added various HTTP timeout parameters to improve reliabili
 Nov 14/2016 1:11AM - Create separate builds for OpenHAB 1.8X and 2.0 to address outstanding issues.
 
 
-KNOWN ISSUES:
-- Phantom motion events. There is a numeric value attached to pirSignal events which I was ignoring. This proved to be a bad idea. These values likely indicate some sort of quality/threshold. I will log and audit these values to determine what numeric value indicates a "true" pirSignal event. I had assumed that pirSignal events are fired only when the motion meets the same threshold used to light up the LightPad. I'm not so sure about that any more. I think a superset of motion events are broadcast and not all of them meet the threshold to be considered valid. Please check back in a few days - I'm confident I can fix this issue in the near future.
+Known issues / Will fix:
+- Phantom motion events. There is a numeric value attached to pirSignal events which I was ignoring. This proved to be a bad idea. These values likely indicate some sort of quality/threshold. I will log and audit these values to determine what numeric value indicates a "true" pirSignal event. I had assumed that pirSignal events are fired only when the motion meets the same threshold used to light up the LightPad. I'm not so sure about that any more. I think a superset of motion events are broadcast and not all of them meet the threshold to be considered valid. Hoping to fix this in the future...
+- Configurable idle/timeout for motion events. Right now a Plum motion sensor will toggle on, and after 5 seconds of no motion, toggle off. This works, but forces you to write rules in a very specific and perhaps overly complicated way. I will soon add a configurable idle/timeout for each Plum motion sensor item.
 
 Currently working:
 -Plum LightPads can be controlled via OpenHAB as switches 
@@ -30,7 +31,7 @@ Currently working:
 -Plum LightPads report the power consumption of the load (in watts). Use the same llid and IP address but with the Number item type and #powermeter feature as per example below
 -Plum Lightpads report PIR/Motion sensor events. These events will set an OpenHab CONTACT item type to OPEN for 5 seconds, and automatically close it 5 seconds later. Make sure to use the Contact item type and the #motion configuration feature as per examples below.
 
-General issues
+General issues / won't fix:
 -Dimmers when configured as Sliders in the site map cannot be controlled until the first refresh (60s after OpenHAB start)
 -No test cases and minimal error handling. Make sure your configuration is perfect and keep an eye on the logs for any network issues.
 
