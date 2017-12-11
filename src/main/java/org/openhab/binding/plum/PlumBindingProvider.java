@@ -10,23 +10,23 @@ package org.openhab.binding.plum;
 
 import java.util.Collection;
 
-import org.openhab.core.autoupdate.AutoUpdateBindingProvider;
+import org.openhab.core.binding.BindingProvider;
 
 /**
  * Binding provider interface. Defines the methods to interact with the binding
  * provider.
- * 
+ *
  * @author Mike Nemat
  */
-public interface PlumBindingProvider extends AutoUpdateBindingProvider {
-	/**
-	 * Returns the binding configuration for the item with this name.
-	 * 
-	 * @param itemName
-	 *            the name to get the binding configuration for.
-	 * @return the binding configuration.
-	 */
-	public PlumBindingConfig getPlumBindingConfig(String itemName);
+public interface PlumBindingProvider extends BindingProvider {
+    /**
+     * Returns the binding configuration for the item with this name.
+     *
+     * @param itemName
+     *            the name to get the binding configuration for.
+     * @return the binding configuration.
+     */
+    public PlumBindingConfig getPlumBindingConfig(String itemName);
 
-	public Collection<PlumBindingConfig> getPlumBindingConfigs();
+    public Collection<PlumBindingConfig> getPlumBindingConfigs();
 }
