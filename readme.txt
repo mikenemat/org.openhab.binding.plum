@@ -4,7 +4,7 @@ This binding interacts with the LightPads locally over HTTP, and thus may be bro
 
 Binding JAR:
 FOR OPENHAB 1.8.X: target/org.openhab.binding.plum-1.8.2-OPENHAB_1_8_X.jar
-FOR OPENHAB 2.0: target/org.openhab.binding.plum-1.9.0-OPENHAB_2_0.jar
+FOR OPENHAB 2.0: target/org.openhab.binding.plum-1.11.0-OPENHAB_2_0.jar
 
 Binding DEB package:
 Currently broken, use the JAR file
@@ -17,6 +17,7 @@ Aug 1/2016 3:10PM - Fixed a bug where motion sensors wouldn't work on 1st try.
 Nov 13/2016 9:23PM - OpenHAB 2.0 Compatibility: Converted from Apache Commons HTTP to Jetty HttpClient
 Nov 14/2016 12:10AM - Added various HTTP timeout parameters to improve reliability
 Nov 14/2016 1:11AM - Create separate builds for OpenHAB 1.8X and 2.0 to address outstanding issues.
+Dec 10/2017 10:10PM - Fixed various issues related to start/stop plugin & unreachable lightpads. NOTE - FIXED IN OPENHAB 2.0 JAR ONLY!!!
 
 
 Known issues / Will fix:
