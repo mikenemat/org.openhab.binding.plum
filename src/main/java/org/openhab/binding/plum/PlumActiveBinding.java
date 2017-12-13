@@ -18,7 +18,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
@@ -179,11 +181,17 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
         httppost.content(new StringContentProvider(json.toString()), "UTF-8");
 
         httppost.timeout(5, TimeUnit.SECONDS);
-        ContentResponse response;
+        ContentResponse response = null;
         try {
             response = httppost.send();
-        } catch (Exception e) {
+        } catch (TimeoutException e) {
+            logger.warn("Plum HTTP Request to IP " + ip + " timed out. Check IP or reboot Lightpad");
+            return null;
+        } catch (ExecutionException e) {
             logger.error("Plum HTTP Request to IP " + ip + " returned ERROR " + e.getMessage());
+            return null;
+        } catch (Exception e) {
+            logger.error("Plum HTTP Request to IP " + ip + " returned ERROR", e);
             return null;
         }
 
@@ -263,16 +271,20 @@ public class PlumActiveBinding extends AbstractActiveBinding<PlumBindingProvider
             String httpReply = null;
             JSONObject jsonParsed = null;
             String ipAddr = configByLLID.get(llid).get(0).getIpAddr();
+            
             try {
                 logger.debug("Polling Plum HTTP " + ipAddr);
                 httpReply = sendHttpCommand(ipAddr, "getLogicalLoadMetrics", args);
                 if (httpReply != null) {
                     logger.trace("Got Plum HTTP: " + httpReply);
                     jsonParsed = new JSONObject(httpReply);
+                } else {
+                    continue;
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+            
             for (PlumBindingConfig c : configByLLID.get(llid)) {
 
                 if (c.getType().equals("dimmer") || c.getType().equals("switch")) {

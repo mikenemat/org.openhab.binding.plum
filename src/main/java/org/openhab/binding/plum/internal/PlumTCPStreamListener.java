@@ -69,7 +69,7 @@ public class PlumTCPStreamListener implements Runnable {
                         break;
                     }
 
-                    logger.info("Plum TCP Stream event from IP " + ipAddr + " Message: " + s);
+                    logger.debug("Plum TCP Stream event from IP " + ipAddr + " Message: " + s);
 
                     JSONObject j = new JSONObject(s);
                     String type = j.getString("type");
