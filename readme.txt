@@ -1,3 +1,7 @@
+As many of you are aware. Plum has been out of business for a while now. Many people (including myself) have experienced hardware issues with the lightpads (dimmer flickering, dead microSD cards, wifi drops, etc), as well as software issues provisioning or reconfiguring new or existing lightpads. I've removed all of my plum lightpads from my home (18 units!) and replaced them with Lutron Caseta. I'd encourage you all to do the same. No further support will be provided for any of this code.
+
+--------------------------------------------------------------------
+
 This is an OpenHAB binding for the Plum LightPad. It has been developed and tested for OpenHAB 1.8, as well as OpenHAB 2.0 with the 1.x compatibility layer.
 You will need to use it in combination with my plum-probe.py script to retrieve certain tokens and IDs: https://github.com/mikenemat/plum-probe
 This binding interacts with the LightPads locally over HTTP, and thus may be broken by firmware updates, IP address reallocation, or configuration changes. It is strongly recommended that you make static DHCP allocations for all of your lightpads to avoid IP address changes.
